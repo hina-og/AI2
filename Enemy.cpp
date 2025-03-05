@@ -172,12 +172,10 @@ void Enemy::Dijkstra(Node* root, Node* goal)
             break;
         }
 
-        // 隣接するノードを確認（上下左右の4方向のみ）
-        for (int i = 0; i < 4; i++)  // 4方向探索（斜め方向は除外）
+        for (int i = 0; i < 4; i++)
         {
             Node* nextNode = currentNode->neighborNode[i];
 
-            // 隣接ノードが無効か、壁であればスキップ
             if (!nextNode || nextNode->isWall || nextNode->isOpen)
             {
                 continue;
@@ -201,7 +199,7 @@ void Enemy::Dijkstra(Node* root, Node* goal)
     std::vector<Point> path;
     Node* current = goal;
 
-    while (current && current != root)//currentが有効かつcurrentとstartNodeが違うときにループ
+    while (current && current != root)
     {
         path.push_back(current->pos);
         current = current->parentNode;
@@ -209,7 +207,7 @@ void Enemy::Dijkstra(Node* root, Node* goal)
 
     if (!path.empty())//パスが空じゃなければ
     {
-        Point nextStep = path.back();//次の移動先を決める
+        Point nextStep = path.back();
         nextPos_ = { nextStep.x * CHA_WIDTH, nextStep.y * CHA_HEIGHT };
     }
 
