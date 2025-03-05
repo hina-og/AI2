@@ -27,11 +27,15 @@ Stage::Stage()
 					node[y][x].isWall = false;
 				}
 			}
+			node[y][x].pos = { x,y };
+			node[y][x].parentNode = nullptr;
+			node[y][x].isOpen = false;
 		}
 	}
 
-	int direction = 0;
 
+	//ñ_ì|Çµñ@Ç≈ï«ê∂ê¨
+	int direction = 0;
 	for (int y = 0; y < STAGE_HEIGHT; y++)
 	{
 		for (int x = 0; x < STAGE_WIDTH; x++)
@@ -63,6 +67,45 @@ Stage::Stage()
 				default:
 					break;
 				}
+			}
+		}
+	}
+
+	for (int y = 0; y < STAGE_HEIGHT; y++)
+	{
+		for (int x = 0; x < STAGE_WIDTH; x++)
+		{
+			if (y > 0) {
+
+				node[y][x].neighborNode[0] = &node[y - 1][x];
+			}
+			else 
+			{
+				node[y][x].neighborNode[0] = nullptr;
+			}
+			if (y < STAGE_HEIGHT - 1) 
+			{
+				node[y][x].neighborNode[1] = &node[y + 1][x];
+			}
+			else 
+			{
+				node[y][x].neighborNode[1] = nullptr;
+			}
+			if (x > 0) 
+			{
+				node[y][x].neighborNode[2] = &node[y][x - 1];
+			}
+			else 
+			{
+				node[y][x].neighborNode[2] = nullptr;
+			}
+			if (x < STAGE_WIDTH - 1) 
+			{
+				node[y][x].neighborNode[3] = &node[y][x + 1];
+			}
+			else 
+			{
+				node[y][x].neighborNode[3] = nullptr;
 			}
 		}
 	}
@@ -116,3 +159,5 @@ void Stage::setStageRects()
 	}
 
 }
+
+

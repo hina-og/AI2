@@ -1,6 +1,8 @@
 #pragma once
 #include "./Library/GameObject.h"
 #include "./globals.h"
+#include "./Stage.h"
+#include <vector>
 
 class Enemy :
     public GameObject
@@ -13,6 +15,8 @@ class Enemy :
     int direction{ 0 };
     int frame{ 0 };
 
+    Stage* stage;
+
     Point nextPos_;
 public:
     Enemy();
@@ -22,5 +26,8 @@ public:
     void Draw() override;
     bool CheckHit(const Rect& me, const Rect& other);
     bool HitToChip(int _x, int _y);
+
+    bool BFS(Node* root,Node* goal);
+    bool Dijkstra(Node* startNode, Node* goalNode);
 };
 

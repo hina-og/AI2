@@ -16,10 +16,11 @@ constexpr int STAGE_HEIGHT = (Screen::HEIGHT / CHA_HEIGHT) % 2 ? (Screen::HEIGHT
 struct Node
 {
 	Point pos;
-	Node* parentNode;
-
-	bool isWall;
-	//Node(Point p) : pos(p), parentNode(nullptr) {};
+	Node* parentNode;//親ノード
+	bool isOpen;//探索したか
+	bool isWall;//壁かどうか
+	Node* neighborNode[4];//となりのノード
+	float cost;
 };
 
 class Stage :

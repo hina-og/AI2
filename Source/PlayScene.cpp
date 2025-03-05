@@ -9,7 +9,6 @@ PlayScene::PlayScene()
 	new Stage();
 	new Player();
 	new Enemy();
-	new Enemy();
 }
 
 PlayScene::~PlayScene()
