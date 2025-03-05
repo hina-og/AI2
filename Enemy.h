@@ -27,7 +27,7 @@ public:
     bool CheckHit(const Rect& me, const Rect& other);
     bool HitToChip(int _x, int _y);
 
-    bool BFS(Node* root,Node* goal);
-    bool Dijkstra(Node* startNode, Node* goalNode);
+    void BFS(Node* root,Node* goal);
+    void Dijkstra(Node* root, Node* goal);
 };
 

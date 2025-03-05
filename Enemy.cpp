@@ -32,94 +32,7 @@ void Enemy::Update()
     Node* startNode = &stage->node[chipY][chipX];
     Node* goalNode = &stage->node[pChipY][pChipX];
 
-    //for (int y = 0; y < STAGE_HEIGHT; y++)
-    //{
-    //    for (int x = 0; x < STAGE_WIDTH; x++)
-    //    {
-    //        stage->node[y][x].isOpen = false;
-    //        stage->node[y][x].parentNode = nullptr;
-    //    }
-    //}
-
-    ////幅優先ででルート探索
-
-    //std::queue<Node*> nodeQueue;
-    //nodeQueue.push(startNode);
-    //startNode->isOpen = true;
-
-    //while (!nodeQueue.empty())
-    //{
-    //    Node* current = nodeQueue.front();
-    //    nodeQueue.pop();
-
-    //    if (current == goalNode)
-    //    {
-    //        break; //ゴールまで行ったら抜ける
-    //    }
-
-    //    for (int i = 0; i < 4; i++)
-    //    {
-    //        Node* nextNode = current->neighborNode[i];
-
-    //        if (!nextNode || nextNode->isWall || nextNode->isOpen)
-    //            continue;
-
-    //        nextNode->parentNode = current;
-    //        nextNode->isOpen = true;
-    //        nodeQueue.push(nextNode);
-    //    }
-    //}
-
-
-    //std::vector<Point> path;
-    //Node* current = goalNode;
-
-    //while (current && current != startNode)//currentが有効かつcurrentとstartNodeが違うときにループ
-    //{
-    //    path.push_back(current->pos);
-    //    current = current->parentNode;
-    //}
-
-    //if (!path.empty())//パスが空じゃなければ
-    //{
-    //    Point nextStep = path.back();//次の移動先を決める
-    //    nextPos_ = { nextStep.x * CHA_WIDTH, nextStep.y * CHA_HEIGHT };
-    //}
-
-    //if (pos_.x < nextPos_.x)
-    //{
-    //    pos_.x += speed_;
-    //}
-    //if (pos_.x > nextPos_.x)
-    //{
-    //    pos_.x -= speed_;
-    //}
-    //if (pos_.y < nextPos_.y)
-    //{
-    //    pos_.y += speed_;
-    //}
-    //if (pos_.y > nextPos_.y)
-    //{
-    //    pos_.y -= speed_;
-    //}
-
-    // ダイクストラ法で最短経路を探索
-    if (Dijkstra(startNode, goalNode))
-    {
-        Node* currentNode = goalNode;
-        while (currentNode && currentNode != startNode)
-        {
-            // 最短経路をたどっていく
-            currentNode = currentNode->parentNode;
-        }
-
-        // 次の移動先
-        if (currentNode)
-        {
-            nextPos_ = { currentNode->pos.x * CHA_WIDTH, currentNode->pos.y * CHA_HEIGHT };
-            pos_ = nextPos_;  // 敵の位置を更新
-        }
-    }
+    BFS(startNode, goalNode);
 }
 
 void Enemy::Draw()
@@ -153,94 +66,167 @@ bool Enemy::HitToChip(int _x, int _y)
 	return false;
 }
 
-bool Enemy::BFS(Node* root, Node* goal)
+void Enemy::BFS(Node* root, Node* goal)
 {
-    if (root == goal)
-    {
-        pos_ = { goal->pos.x * CHA_WIDTH, goal->pos.y * CHA_HEIGHT };
-        return true;
-    }
-
-    root->isOpen = true;
-
-    for (int i = 0; i < 4; i++)
-    {
-        Node* nextNode = root->neighborNode[i];
-
-        if (!nextNode || nextNode->isWall || nextNode->isOpen)
-        {
-            continue;
-        }
-
-        pos_ = { nextNode->pos.x * CHA_WIDTH, nextNode->pos.y * CHA_HEIGHT };
-
-        nextNode->parentNode = root;
-        nextNode->isOpen = true;
-
-        if (BFS(nextNode, goal))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-
-bool Enemy::Dijkstra(Node* startNode, Node* goalNode)
-{
-    // ダイクストラ法では、最小コストを持つノードを優先的に処理するために、優先度付きキューを使います
-    struct CompareNode
-    {
-        bool operator()(Node* a, Node* b)
-        {
-            return a->cost > b->cost;  // コストが大きい方を後に処理
-        }
-    };
-
-    std::priority_queue<Node*, std::vector<Node*>, CompareNode> pq;
-
-    // 初期化
     for (int y = 0; y < STAGE_HEIGHT; y++)
     {
         for (int x = 0; x < STAGE_WIDTH; x++)
         {
-            stage->node[y][x].cost = std::numeric_limits<float>::infinity();  // 最初は無限大に設定
-            stage->node[y][x].parentNode = nullptr;  // 親ノードを初期化
-            stage->node[y][x].isOpen = false;  // ノードが開いているかどうか
+            //全部初期化
+            stage->node[y][x].isOpen = false;//あいてないよー
+            stage->node[y][x].parentNode = nullptr;//おやいないよー
         }
     }
-
-    startNode->cost = 0;  // スタートノードのコストは0
-    pq.push(startNode);
-
-    while (!pq.empty())
+    
+    //幅優先ででルート探索
+    
+    std::queue<Node*> nodeQueue;
+    nodeQueue.push(root);
+    root->isOpen = true;
+    
+    while (!nodeQueue.empty())
     {
-        Node* currentNode = pq.top();
-        pq.pop();
-
-        if (currentNode == goalNode)
+        Node* current = nodeQueue.front();
+        nodeQueue.pop();
+    
+        if (current == goal)
         {
-            return true;  // ゴールに到達したら終了
+            break; //ゴールまで行ったら抜ける
         }
-
-        // 隣接ノードを探索
+    
         for (int i = 0; i < 4; i++)
         {
-            Node* neighbor = currentNode->neighborNode[i];
-            if (!neighbor || neighbor->isWall) continue;  // 壁や無効なノードは無視
-
-            float newCost = currentNode->cost + 1;  // 隣接ノードへの移動コストを計算（ここでは仮に1とする）
-
-            // もし新しいコストが現在のコストより小さい場合、コストを更新
-            if (newCost < neighbor->cost)
+            Node* nextNode = current->neighborNode[i];
+    
+            if (!nextNode || nextNode->isWall || nextNode->isOpen)
             {
-                neighbor->cost = newCost;
-                neighbor->parentNode = currentNode;  // 親ノードを設定
-                pq.push(neighbor);  // 更新したノードを優先度付きキューに追加
+                continue;
             }
+            nextNode->parentNode = current;
+            nextNode->isOpen = true;
+            nodeQueue.push(nextNode);
+        }
+    }
+    
+    
+    std::vector<Point> path;
+    Node* current = goal;
+    
+    while (current && current != root)//currentが有効かつcurrentとstartNodeが違うときにループ
+    {
+        path.push_back(current->pos);
+        current = current->parentNode;
+    }
+    
+    if (!path.empty())//パスが空じゃなければ
+    {
+        Point nextStep = path.back();//次の移動先を決める
+        nextPos_ = { nextStep.x * CHA_WIDTH, nextStep.y * CHA_HEIGHT };
+    }
+    
+    if (pos_.x < nextPos_.x)
+    {
+        pos_.x += speed_;
+    }
+    if (pos_.x > nextPos_.x)
+    {
+        pos_.x -= speed_;
+    }
+    if (pos_.y < nextPos_.y)
+    {
+        pos_.y += speed_;
+    }
+    if (pos_.y > nextPos_.y)
+    {
+        pos_.y -= speed_;
+    }
+}
+
+
+void Enemy::Dijkstra(Node* root, Node* goal)
+{
+    for (int y = 0; y < STAGE_HEIGHT; y++)
+    {
+        for (int x = 0; x < STAGE_WIDTH; x++)
+        {
+            stage->node[y][x].dist = 0;
+            stage->node[y][x].isOpen = false;
+            stage->node[y][x].parentNode = nullptr;
         }
     }
 
-    return false;  // ゴールに到達できなかった場合
+    root->dist = 0;
+    root->isOpen = false;
+
+    std::queue<Node*> nodeQueue;
+    nodeQueue.push(root);
+
+    while (!nodeQueue.empty())
+    {
+        Node* currentNode = nodeQueue.front();
+        nodeQueue.pop();
+
+        // ゴールに到達したら終了
+        if (currentNode == goal)
+        {
+            break;
+        }
+
+        // 隣接するノードを確認（上下左右の4方向のみ）
+        for (int i = 0; i < 4; i++)  // 4方向探索（斜め方向は除外）
+        {
+            Node* nextNode = currentNode->neighborNode[i];
+
+            // 隣接ノードが無効か、壁であればスキップ
+            if (!nextNode || nextNode->isWall || nextNode->isOpen)
+            {
+                continue;
+            }
+            
+            int newDist = currentNode->dist + nextNode->cost;
+            if (newDist < nextNode->dist)
+            {
+                nextNode->parentNode = currentNode;
+                nextNode->dist = newDist;
+                nodeQueue.push(nextNode);
+                
+            }
+            //nextNode->parentNode = currentNode;
+            //nextNode->isOpen = true;
+            //nodeQueue.push(nextNode);
+            //nextNode->dist = newDist;
+        }
+    }
+
+    std::vector<Point> path;
+    Node* current = goal;
+
+    while (current && current != root)//currentが有効かつcurrentとstartNodeが違うときにループ
+    {
+        path.push_back(current->pos);
+        current = current->parentNode;
+    }
+
+    if (!path.empty())//パスが空じゃなければ
+    {
+        Point nextStep = path.back();//次の移動先を決める
+        nextPos_ = { nextStep.x * CHA_WIDTH, nextStep.y * CHA_HEIGHT };
+    }
+
+    if (pos_.x < nextPos_.x)
+    {
+        pos_.x += speed_;
+    }
+    if (pos_.x > nextPos_.x)
+    {
+        pos_.x -= speed_;
+    }
+    if (pos_.y < nextPos_.y)
+    {
+        pos_.y += speed_;
+    }
+    if (pos_.y > nextPos_.y)
+    {
+        pos_.y -= speed_;
+    }
 }

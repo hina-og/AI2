@@ -21,6 +21,7 @@ struct Node
 	bool isWall;//ï«Ç©Ç«Ç§Ç©
 	Node* neighborNode[4];//Ç∆Ç»ÇËÇÃÉmÅ[Éh
 	float cost;
+	int dist;
 };
 
 class Stage :

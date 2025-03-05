@@ -30,6 +30,8 @@ Stage::Stage()
 			node[y][x].pos = { x,y };
 			node[y][x].parentNode = nullptr;
 			node[y][x].isOpen = false;
+			node[y][x].cost = 1;
+			node[y][x].dist = 0;
 		}
 	}
 
